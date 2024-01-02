@@ -3,6 +3,8 @@ from pathlib import Path
 import inspect
 import os
 
+class NANException(BaseException):
+    pass
 
 def _showdoc(x,out):
     if (d := getattr(x,'__doc__',None)) is not None:
@@ -18,9 +20,18 @@ def _explore(thing:Any,out):
         print(d,file=out)
     for n,v in inspect.getmembers(thing):
         print(f"{n} is {v}",file=out)
+    print(file=out)
 
 
 
 def explore(thing:Any):
-    with open(Path('/tmp') / f"explore{os.getpid()}",'w') as f:
+    with open(Path('/tmp') / f"explore{os.getpid()}",'a') as f:
         _explore(thing,f)
+
+def failit():
+    raise NANException("failure")
+
+def nan_user(pmod)->str:
+    r = pmod.execute("select current_setting('nan.user')")
+    explore(r)
+    return r[0]['current_setting']
