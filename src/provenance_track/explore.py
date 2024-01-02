@@ -2,6 +2,10 @@ from typing import Any
 from pathlib import Path
 import inspect
 import os
+try:
+    import plpy
+except ImportError:
+    pass
 
 class NANException(BaseException):
     pass
@@ -31,7 +35,7 @@ def explore(thing:Any):
 def failit():
     raise NANException("failure")
 
-def nan_user(pmod)->str:
-    r = pmod.execute("select current_setting('nan.user')")
+def nan_user()->str:
+    r = plpy.execute("select current_setting('nan.user')")
     explore(r)
     return r[0]['current_setting']
