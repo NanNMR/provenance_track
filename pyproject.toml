@@ -8,11 +8,15 @@ authors = [
     {name = "Gerard"},
     {email = "gweatherby@uchc.edu"}
 ]
-dynamic = ["license"] 
+dynamic = ["license"]
+
+[project.optional-dependencies]
+mock = ['keyrings.efile',
+    'postgresql-access',
+    'pyyaml']
 
 #[project.scripts]
 #provenance_track = "provenance_track.main:main"
-
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
