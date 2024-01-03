@@ -2,6 +2,9 @@ from typing import Any
 from pathlib import Path
 import inspect
 import os
+
+from provenance_track import PlpyAPI
+
 try:
     import plpy
 except ImportError:
@@ -23,6 +26,7 @@ def _showdoc(x,out):
 
 def _explore(thing:Any,out):
 #    print(thing.__name__,file=out)
+    print(f"API good {isinstance(plpy,PlpyAPI)}",file=out)
     print(type(thing),file=out)
     _showdoc(thing,out)
     print("file?", file=out)
