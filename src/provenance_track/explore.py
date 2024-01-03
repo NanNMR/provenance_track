@@ -16,6 +16,10 @@ def _showdoc(x,out):
 
 def _explore(thing:Any,out):
 #    print(thing.__name__,file=out)
+    try:
+        print(help(thing),file=out)
+    except:
+        pass
     print(type(thing),file=out)
     _showdoc(thing,out)
     if (fa := getattr(thing,'__file__',None)) is not None:
