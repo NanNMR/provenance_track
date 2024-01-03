@@ -20,15 +20,19 @@ def _showdoc(x,out):
 def _explore(thing:Any,out):
 #    print(thing.__name__,file=out)
     try:
+        print("help",file=out)
         print(help(thing),file=out)
     except Exception as e:
         print(f"help err {e}",file=out)
+    print(file=out)
     print(type(thing),file=out)
     _showdoc(thing,out)
+    print("file?", file=out)
     if (fa := getattr(thing,'__file__',None)) is not None:
         print(f"file: {fa}",file=out)
-    for d in dir(thing):
-        print(d,file=out)
+#    for d in dir(thing):
+#        print(d,file=out)
+    print("inspect", file=out)
     for n,v in inspect.getmembers(thing):
         print(f"{n} is {v}",file=out)
     print(file=out)
@@ -36,8 +40,10 @@ def _explore(thing:Any,out):
 
 
 def explore(thing:Any):
-    with open(Path('/tmp') / f"explore{os.getpid()}",'a',opener=opener) as f:
+    logname = Path('/tmp') / f"explore{os.getpid()}"
+    with open(logname, 'a', opener=opener) as f:
         _explore(thing,f)
+    os.chmod(logname,mode=0o644)
 
 def failit():
     raise NANException("failure")
