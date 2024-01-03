@@ -18,7 +18,7 @@ def _showdoc(x,out):
     if (d := getattr(x,'__doc__',None)) is not None:
         print(d,file=out)
     else:
-        print(f'{type(x)} has no __doc__')
+        print(f'{type(x)} has no __doc__',file=out)
 
 
 def _explore(thing:Any,out):
