@@ -10,6 +10,9 @@ except ImportError:
 class NANException(BaseException):
     pass
 
+def opener(path, flags):
+    return os.open(path, flags,mode=0o644)
+
 def _showdoc(x,out):
     if (d := getattr(x,'__doc__',None)) is not None:
         print(d,file=out)
@@ -33,7 +36,7 @@ def _explore(thing:Any,out):
 
 
 def explore(thing:Any):
-    with open(Path('/tmp') / f"explore{os.getpid()}",'a') as f:
+    with open(Path('/tmp') / f"explore{os.getpid()}",'a',opener=opener) as f:
         _explore(thing,f)
 
 def failit():
