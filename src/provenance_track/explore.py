@@ -14,17 +14,15 @@ def opener(path, flags):
     return os.open(path, flags,mode=0o644)
 
 def _showdoc(x,out):
+    print("doc?", file=out)
     if (d := getattr(x,'__doc__',None)) is not None:
         print(d,file=out)
+    else:
+        print(f'{type(x)} has no __doc__')
+
 
 def _explore(thing:Any,out):
 #    print(thing.__name__,file=out)
-    try:
-        print("help",file=out)
-        print(help(thing),file=out)
-    except Exception as e:
-        print(f"help err {e}",file=out)
-    print(file=out)
     print(type(thing),file=out)
     _showdoc(thing,out)
     print("file?", file=out)
