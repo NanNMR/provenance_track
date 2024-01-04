@@ -27,6 +27,7 @@ def _showdoc(x,out):
 def _explore(thing:Any,out):
 #    print(thing.__name__,file=out)
     print(f"API good {isinstance(plpy,PlpyAPI)}",file=out)
+    print(f"pid is: {os.getpid()}",file=out)
     print(type(thing),file=out)
     _showdoc(thing,out)
     print("file?", file=out)
