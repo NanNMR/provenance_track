@@ -22,9 +22,7 @@ CREATE or REPLACE FUNCTION public.do_query()
 LANGUAGE plpython3u 
 AS $$ 
 import plpy
-r = plpy.execute('select name from public.pdata',2)
-plpy.info(r[0]['namex'])
-plpy.info(r[1]['name'])
+plpy.info(f'GD is {GD}')
 
 return "OK"
 $$;
@@ -33,6 +31,6 @@ DROP TRIGGER pdata_trigger on public.pdata;
 CREATE TRIGGER pdata_trigger 
 BEFORE
 INSERT or UPDATE 
-ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.upper_p() 
---ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.do_query()
+--ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.upper_p() 
+ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.do_query()
 

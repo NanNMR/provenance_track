@@ -7,19 +7,12 @@ import os
 import yaml
 
 from provenance_track import PlpyAPI, provenance_track_logger
-_PMAP = "nmrhub_provenance"
-# noinspection PyUnresolvedReferences
-if _PMAP not in GD:
-    with open('/etc/nan.d/provenance.yaml') as f:
-        # noinspection PyUnresolvedReferences
-        GD[_PMAP] = yaml.safe_load((f))
 
 def nan_user(plpy)->str:
     r = plpy.execute("select current_setting('nan.user')")
     return r[0]['current_setting']
 
-def record(plpy: PlpyAPI):
-    # noinspection PyUnresolvedReferences
+def record(plpy: PlpyAPI,TD):
     fqtn = f"{TD['schema_name']}_{TD['table_name']}"
     provenance_track_logger.warning(fqtn)
     r = plpy.execute(f"""select column_name 
@@ -30,7 +23,6 @@ def record(plpy: PlpyAPI):
         return
     cols = [row['column_name'] for row in r]
     provenance_track_logger.debug(cols)
-    # noinspection PyUnresolvedReferences
     event = TD['event']
     if event == "INSERT":
         pass
