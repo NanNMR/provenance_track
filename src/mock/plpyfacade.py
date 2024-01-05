@@ -1,12 +1,24 @@
 import configparser
+import copy
+import sys
 from collections.abc import Mapping
-from typing import Optional
+from typing import Optional, Dict
 
 import yaml
 from postgresql_access import DatabaseDict
 
-from provenance_track import PlpyAPI, PyResult, provenance_track_logger
 
+def create_global_symbol(name,value):
+    """Create symbol in global (bultin) namespace"""
+    gs = sys.modules['builtins'].__dict__
+    if (gs.get(name,None)) is None:
+        gs[name] = value
+        return
+    raise ValueError(f"{name} already present")
+
+create_global_symbol('GD',{})
+
+from provenance_track import PlpyAPI, PyResult, provenance_track_logger
 
 class MockResult(PyResult):
 
@@ -84,10 +96,7 @@ class MockPlpy(PlpyAPI):
 
     def __enter__(self):
         MockPlpy._instance = self
-        g = globals()
-        for d in ('GD','SD'):
-            if getattr(g,d,None) is None:
-                g[d] = {}
+        create_global_symbol('SD',{})
         self.conn = self.db.connect()
         return self
 
@@ -96,18 +105,17 @@ class MockPlpy(PlpyAPI):
         self.conn.close()
         self.conn = None
 
-    def set_trigger_data(self,old:Optional[Mapping],_new:Optional[Mapping]):
-        raise NotImplementedError()
-#        td = {}
-#        if old is not None:
-#            td['old'] = old
-#        if _new is not None:
-#            td['new'] = n = copy.deepcopy(_new)
-#            if old is not None:
-#                for k, v in old:
-#                    if k not in n:
-#                        n[k] = v
-
+    def set_trigger_data(self,schema,table,old:Optional[Dict],_new:Optional[Dict]):
+        td = {'table_name':table,'schema_name':schema}
+        if old is not None:
+            td['old'] = old
+        if _new is not None:
+            td['new'] = n = copy.deepcopy(_new)
+            if old is not None:
+                for k, v in old.items():
+                    if k not in n:
+                        n[k] = v
+        create_global_symbol('TD',td)
 
 
 

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import logging
+import sys
 
 from mock.plpyfacade import MockPlpy
-from provenance_track import provenance_track_logger
+from provenance_track import provenance_track_logger, record
+
 
 
 def main():
-    logging.basicConfig()
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-l', '--loglevel', default='INFO', help="Python logging level")
     parser.add_argument('yaml',nargs='?', default='ftest.yaml',help="YAML")
@@ -15,19 +16,8 @@ def main():
     args = parser.parse_args()
     provenance_track_logger.setLevel(getattr(logging,args.loglevel))
     with MockPlpy.from_yaml_file(args.yaml) as plpy:
-        r = plpy.execute('select name from public.pdata',2)
-        plpy.info(r[0]['name'])
-        plpy.info(r[1]['name'])
-        try:
-            plpy.info(r[2]['name'])
-            raise ValueError("Missing IndexError")
-        except IndexError:
-            pass
-        try:
-            plpy.info(r[0]['namex'])
-            raise ValueError("Missing KeyError")
-        except KeyError:
-            pass
+        plpy.set_trigger_data('public','pdata',{'id':1, 'name':'Mary'}, {'name':'bob'})
+        record(plpy)
 
 
 
