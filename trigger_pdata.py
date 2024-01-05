@@ -1,6 +1,6 @@
 CREATE LANGUAGE plpython3u;
 
-CREATE or REPLACE FUNCTION public.upper_p() 
+CREATE or REPLACE FUNCTION public.record_ch() 
   RETURNS TRIGGER
 LANGUAGE plpython3u 
 AS $$ 
@@ -10,7 +10,7 @@ import provenance_track
 from provenance_track import provenance_track_logger, record
 plpy.info(provenance_track.__version__)
 provenance_track.set_log_level('DEBUG')
-record(plpy)
+record(plpy,TD)
 
 #plpy.info(provenance_track.nan_user())
 
@@ -31,6 +31,6 @@ DROP TRIGGER pdata_trigger on public.pdata;
 CREATE TRIGGER pdata_trigger 
 BEFORE
 INSERT or UPDATE 
---ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.upper_p() 
-ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.do_query()
+ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.record_ch() 
+--ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.do_query()
 

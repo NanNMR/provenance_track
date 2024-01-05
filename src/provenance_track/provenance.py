@@ -13,7 +13,8 @@ def nan_user(plpy)->str:
     return r[0]['current_setting']
 
 def record(plpy: PlpyAPI,TD):
-    fqtn = f"{TD['schema_name']}_{TD['table_name']}"
+    provenance_track_logger.warning(TD)
+    fqtn = f"{TD['table_schema']}_{TD['table_name']}"
     provenance_track_logger.warning(fqtn)
     r = plpy.execute(f"""select column_name 
         from information_schema.columns 
