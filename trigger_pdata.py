@@ -6,26 +6,15 @@ LANGUAGE plpython3u
 AS $$ 
 import datetime 
 import plpy
-import provenance_track
-provenance_track.explore(plpy)
+import provenance_track 
+from provenance_track import provenance_track_logger, record
 plpy.info(provenance_track.__version__)
-newdata = TD["new"]
-n = TD["new"]["name"]
-uname = n.upper()
-if n == uname: 
-    plpy.debug("No change")
-    return "OK"
-n = TD["new"]["name"] = uname
-plpy.info(f"make name {uname}")
-#r = plpy.execute("select current_setting('nan.user')") 
-#cu = r[0]['current_setting']
-#plpy.info(f'{type(cu)} {cu}')
-r = plpy.execute('select now()')
-provenance_track.explore(r)
+provenance_track.set_log_level('DEBUG')
+record(plpy)
 
 #plpy.info(provenance_track.nan_user())
 
-return "MODIFY"
+return "OK"
 $$;
 
 CREATE or REPLACE FUNCTION public.do_query() 
