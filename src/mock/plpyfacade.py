@@ -50,6 +50,9 @@ class MockResult(PyResult):
             raise IndexError()
         return MockResult.RowProxy(self,row)
 
+    def nrows(self):
+        return len(self.data)
+
     def get_result(self,row,item):
         assert isinstance(row,int)
         assert row <= len(self.data)
@@ -68,6 +71,7 @@ class MockPlpy(PlpyAPI):
     @staticmethod
     def execute(query: str, limit: Optional[int] = None) -> PyResult:
         with MockPlpy._instance.conn.cursor() as curs:
+            provenance_track_logger.debug(query)
             curs.execute(query)
             return MockResult(curs,limit)
 
@@ -105,8 +109,9 @@ class MockPlpy(PlpyAPI):
         self.conn.close()
         self.conn = None
 
-    def set_trigger_data(self,schema,table,old:Optional[Dict],_new:Optional[Dict]):
-        td = {'table_name':table,'schema_name':schema}
+    def set_trigger_data(self,schema,table,event,old:Optional[Dict],_new:Optional[Dict]):
+        assert event in ('INSERT','UPDATE','DELETE','TRUNCATE')
+        td = {'table_name':table,'schema_name':schema,'event':event}
         if old is not None:
             td['old'] = old
         if _new is not None:

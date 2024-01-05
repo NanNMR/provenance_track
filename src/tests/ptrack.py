@@ -14,9 +14,13 @@ def main():
     parser.add_argument('yaml',nargs='?', default='ftest.yaml',help="YAML")
 
     args = parser.parse_args()
-    provenance_track_logger.setLevel(getattr(logging,args.loglevel))
+#    provenance_track_logger.setLevel(getattr(logging,args.loglevel))
     with MockPlpy.from_yaml_file(args.yaml) as plpy:
-        plpy.set_trigger_data('public','pdata',{'id':1, 'name':'Mary'}, {'name':'bob'})
+        provenance_track_logger.addHandler(logging.StreamHandler())
+        import provenance_track
+        provenance_track.set_log_level(args.loglevel)
+
+        plpy.set_trigger_data('public','pdata','UPDATE',{'id':1, 'name':'Mary'}, {'name':'bob'})
         record(plpy)
 
 

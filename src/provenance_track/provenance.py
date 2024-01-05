@@ -14,12 +14,30 @@ if _PMAP not in GD:
         # noinspection PyUnresolvedReferences
         GD[_PMAP] = yaml.safe_load((f))
 
+def nan_user(plpy)->str:
+    r = plpy.execute("select current_setting('nan.user')")
+    return r[0]['current_setting']
 
-# noinspection PyUnresolvedReferences
 def record(plpy: PlpyAPI):
-    print(TD)
-    fqtn = f"{TD['table_name']}_{TD['schema_name']}"
+    # noinspection PyUnresolvedReferences
+    fqtn = f"{TD['schema_name']}_{TD['table_name']}"
     provenance_track_logger.warning(fqtn)
+    r = plpy.execute(f"""select column_name 
+        from information_schema.columns 
+        where table_schema='provenance' and table_name='{fqtn}'""")
+    if r.nrows() == 0:
+        provenance_track_logger.warning(f"Table {fqtn} not tracked")
+        return
+    cols = [row['column_name'] for row in r]
+    provenance_track_logger.debug(cols)
+    # noinspection PyUnresolvedReferences
+    event = TD['event']
+    if event == "INSERT":
+        pass
+
+    # EVENT
+    provenance_track_logger.debug(f'{fqtn} in provenance')
+
 
 def set_log_level(level:str)->bool:
     try:
@@ -28,4 +46,3 @@ def set_log_level(level:str)->bool:
     except Exception:
         provenance_track_logger.exception(f"set level {level}")
         return False
-

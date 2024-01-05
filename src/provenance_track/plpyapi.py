@@ -2,9 +2,15 @@ from collections.abc import Mapping
 from typing import runtime_checkable, Protocol, Optional
 
 
-#@runtime_checkable
-class PyResult(Mapping):
-    pass
+@runtime_checkable
+class PyResult(Protocol):
+    def __getitem__(self, key):
+        pass
+
+    def nrows(self)->int:
+        pass
+
+
 
 @runtime_checkable
 class PlpyAPI(Protocol):

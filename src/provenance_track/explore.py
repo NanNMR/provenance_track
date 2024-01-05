@@ -51,7 +51,3 @@ def explore(thing:Any):
 def failit():
     raise NANException("failure")
 
-def nan_user()->str:
-    r = plpy.execute("select current_setting('nan.user')")
-    explore(r)
-    return r[0]['current_setting']
