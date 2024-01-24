@@ -15,8 +15,11 @@ def format(value):
 
 def nan_user(plpy) -> str:
     ### current user, single quoted
-    r = plpy.execute("select current_setting('nan.user')")
-    return "'" + r[0]['current_setting'] + "'"
+    try:
+        r = plpy.execute("select current_setting('nan.user')")
+        return "'" + r[0]['current_setting'] + "'"
+    except:
+        raise ProvenanceException("nan.user not set in configuration?")
 
 
 _PK = """SELECT a.attname AS column 
@@ -32,10 +35,13 @@ EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
 STRING_TYPES = ('text',)
 ITYPES = ('integer',)
-def _translate(value, dtype):
+
+
+def _translate(value, dtype)->str:
+    """Convert value into format suitable for postgresl"""
     provenance_track_logger.debug(f"{value} {dtype}")
     if dtype in STRING_TYPES:
-        return "'" + value.replace("'","''") + "'"
+        return "'" + value.replace("'", "''") + "'"
     if dtype in ITYPES:
         return str(value)
     raise ProvenanceException(f"Unsupported type {dtype} for value {value}")
@@ -52,13 +58,13 @@ def record(plpy: PlpyAPI, TD):
     if r.nrows() == 0:
         provenance_track_logger.warning(f"Table {fqtn} not tracked")
         return
-    cols = [(row['column_name'],row['data_type']) for row in r if not row['column_name'].startswith('provenance_')]
+    cols = [(row['column_name'], row['data_type']) for row in r if not row['column_name'].startswith('provenance_')]
     provenance_track_logger.debug(cols)
     event = TD['event']
     event_type = EVENT_MAP[event]
-    if event_type < 2: # is insert or update
+    if event_type < 2:  # is insert or update
         colspec = ','.join((c[0] for c in cols))
-        values = [nan_user(plpy),str(event_type)] + [_translate(TD['new'][c[0]],c[1]) for c in cols]
+        values = [nan_user(plpy), str(event_type)] + [_translate(TD['new'][c[0]], c[1]) for c in cols]
         query = f"""insert into provenance.{fqtn} (provenance_user,provenance_event,{colspec})
                 values ({','.join(values)})"""
         r = plpy.execute(query)
