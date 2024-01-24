@@ -32,14 +32,22 @@ class MockResult(PyResult):
             return self.parent.get_result(self.row,item)
 
     def __init__(self,cursor,limit):
-        self.colnames = [d[0] for d in cursor.description]
-        if limit is None:
-            self.data = cursor.fetchall()
-        else:
-            self.data = cursor.fetchmany(size=limit)
+        if cursor.description is not None:
+            self.colnames = [d[0] for d in cursor.description]
+            if limit is None:
+                self.data = cursor.fetchall()
+            else:
+                self.data = cursor.fetchmany(size=limit)
+            return
+        self.data = None
+        self._nrows = cursor.rowcount
+
 
     def __iter__(self):
-        pass
+        row = 0
+        while row < len(self.data):
+            yield MockResult.RowProxy(self,row)
+            row += 1
 
     def __len__(self):
         return len(self.data)
@@ -51,7 +59,9 @@ class MockResult(PyResult):
         return MockResult.RowProxy(self,row)
 
     def nrows(self):
-        return len(self.data)
+        if self.data:
+            return len(self.data)
+        return self._nrows
 
     def get_result(self,row,item):
         assert isinstance(row,int)
@@ -74,6 +84,12 @@ class MockPlpy(PlpyAPI):
             provenance_track_logger.debug(query)
             curs.execute(query)
             return MockResult(curs,limit)
+
+    @staticmethod
+    def set_execute(query: str, limit: Optional[int] = None) -> None:
+        with MockPlpy._instance.conn.cursor() as curs:
+            provenance_track_logger.debug(query)
+            curs.execute(query)
 
     @staticmethod
     def info(s: str) -> None:
@@ -102,16 +118,18 @@ class MockPlpy(PlpyAPI):
         MockPlpy._instance = self
         create_global_symbol('SD',{})
         self.conn = self.db.connect()
+        self.set_execute("select set_config('nan.user','mock user',false);")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         MockPlpy._instance = None
+        self.conn.commit()
         self.conn.close()
         self.conn = None
 
-    def set_trigger_data(self,schema,table,event,old:Optional[Dict],_new:Optional[Dict]):
+    def make_trigger_data(self,schema,table,event,old:Optional[Dict],_new:Optional[Dict])->Dict:
         assert event in ('INSERT','UPDATE','DELETE','TRUNCATE')
-        td = {'table_name':table,'schema_name':schema,'event':event}
+        td = {'table_name':table,'table_schema':schema,'event':event}
         if old is not None:
             td['old'] = old
         if _new is not None:
@@ -120,7 +138,7 @@ class MockPlpy(PlpyAPI):
                 for k, v in old.items():
                     if k not in n:
                         n[k] = v
-        create_global_symbol('TD',td)
+        return td
 
 
 

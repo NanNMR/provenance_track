@@ -20,8 +20,9 @@ def main():
         import provenance_track
         provenance_track.set_log_level(args.loglevel)
 
-        plpy.set_trigger_data('public','pdata','UPDATE',{'id':1, 'name':'Mary'}, {'name':'bob'})
-        record(plpy)
+        td = plpy.make_trigger_data('public','pdata','UPDATE',{'id':1, 'name':'bob'}, {'name':'Mary'})
+#        td = plpy.make_trigger_data('public','pdata','INSERT',{'id':1, 'name':'Mary'}, {'name':'bob'})
+        record(plpy,td)
 
 
 

@@ -1,7 +1,15 @@
 import logging.handlers
+import os
 from pathlib import Path
 
 from provenance_track import provenance_track_logger
+
+class ReadableFileHandler(logging.handlers.RotatingFileHandler):
+
+    def doRollover(self):
+        super().doRollover()
+        os.chmod(self.baseFilename, 0o644)
+
 
 
 def setup_logging():

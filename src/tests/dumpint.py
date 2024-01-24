@@ -1,6 +1,6 @@
 import sys
 
-from provenance_track.explore import _explore, explore
+from tests.explore import _explore, explore
 
 x = 7
 _explore(x,sys.stdout)
