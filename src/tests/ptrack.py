@@ -22,6 +22,7 @@ def main():
 
         td = plpy.make_trigger_data('public','pdata','UPDATE',{'id':1, 'name':'bob'}, {'name':'Mary'})
 #        td = plpy.make_trigger_data('public','pdata','INSERT',{'id':1, 'name':'Mary'}, {'name':'bob'})
+        td = plpy.make_trigger_data('public','pdata','DELETE',{'id':1, 'name':'bob'}, {'name':'Mary'})
         record(plpy,td)
 
 

@@ -56,20 +56,20 @@ def record(plpy: PlpyAPI, TD):
         from information_schema.columns 
         where table_schema='provenance' and table_name='{fqtn}'""")
     if r.nrows() == 0:
-        provenance_track_logger.warning(f"Table {fqtn} not tracked")
+        provenance_track_logger.warning(f"Table {dotted} not tracked provenance.{fqtn} not found")
         return
     cols = [(row['column_name'], row['data_type']) for row in r if not row['column_name'].startswith('provenance_')]
     provenance_track_logger.debug(cols)
     event = TD['event']
     event_type = EVENT_MAP[event]
-    if event_type < 2:  # is insert or update
-        colspec = ','.join((c[0] for c in cols))
-        values = [nan_user(plpy), str(event_type)] + [_translate(TD['new'][c[0]], c[1]) for c in cols]
-        query = f"""insert into provenance.{fqtn} (provenance_user,provenance_event,{colspec})
-                values ({','.join(values)})"""
-        r = plpy.execute(query)
-        if r.nrows() != 1:
-            raise ProvenanceException(f"{event} updated {r.nrows()}")
+    source = 'new' if event_type < 2 else 'old'
+    colspec = ','.join((c[0] for c in cols))
+    values = [nan_user(plpy), str(event_type)] + [_translate(TD[source][c[0]], c[1]) for c in cols]
+    query = f"""insert into provenance.{fqtn} (provenance_user,provenance_event,{colspec})
+            values ({','.join(values)})"""
+    r = plpy.execute(query)
+    if r.nrows() != 1:
+        raise ProvenanceException(f"{event} updated {r.nrows()}")
 
     # EVENT
     provenance_track_logger.debug(f'{fqtn} in provenance')
