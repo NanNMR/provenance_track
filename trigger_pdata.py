@@ -8,6 +8,7 @@ import datetime
 import plpy
 import provenance_track 
 from provenance_track import provenance_track_logger, record
+plpy.warning('trigger fire')
 plpy.info(provenance_track.__version__)
 provenance_track.set_log_level('DEBUG')
 record(plpy,TD)
@@ -30,7 +31,7 @@ $$;
 DROP TRIGGER pdata_trigger on public.pdata;
 CREATE TRIGGER pdata_trigger 
 BEFORE
-INSERT or UPDATE 
+INSERT or UPDATE or DELETE or TRUNCATE
 ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.record_ch() 
 --ON public.pdata FOR EACH ROW EXECUTE PROCEDURE public.do_query()
 
