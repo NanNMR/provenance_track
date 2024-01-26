@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 import argparse
+import datetime
 import logging
-import sys
+import os
+import zoneinfo
+tz = zoneinfo.ZoneInfo('America/New_York')
+os.environ['NO_PROVENANCE_TRACK_LOG'] = "1"
+import provenance_track
 
-from mock.plpyfacade import MockPlpy
-from provenance_track import provenance_track_logger, record
+from src.mock.plpyfacade import MockPlpy
 
 
+def test_one(plpy):
+    return plpy.make_trigger_data('public', 'pdata', 'DELETE', {'id': 1, 'name': 'bob'}, {'name': 'Mary'})
 
+
+def test_two(plpy):
+    return plpy.make_trigger_data('public', 'sample', 'INSERT', None,
+                              {'id': 1, 'count': 5, 'description':'adding','created': datetime.datetime.now(tz=tz)})
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-l', '--loglevel', default='INFO', help="Python logging level")
@@ -16,14 +26,13 @@ def main():
     args = parser.parse_args()
 #    provenance_track_logger.setLevel(getattr(logging,args.loglevel))
     with MockPlpy.from_yaml_file(args.yaml) as plpy:
+        from provenance_track import provenance_track_logger, record
         provenance_track_logger.addHandler(logging.StreamHandler())
         import provenance_track
         provenance_track.set_log_level(args.loglevel)
 
-        td = plpy.make_trigger_data('public','pdata','UPDATE',{'id':1, 'name':'bob'}, {'name':'Mary'})
-#        td = plpy.make_trigger_data('public','pdata','INSERT',{'id':1, 'name':'Mary'}, {'name':'bob'})
-        td = plpy.make_trigger_data('public','pdata','DELETE',{'id':1, 'name':'bob'}, {'name':'Mary'})
-        record(plpy,td)
+        #record(plpy,test_one(plpy))
+        record(plpy,test_two(plpy))
 
 
 

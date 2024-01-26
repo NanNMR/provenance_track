@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from provenance_track import PlpyAPI, provenance_track_logger
@@ -33,17 +34,28 @@ AND    i.indisprimary"""
 #
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
-STRING_TYPES = ('text',)
+STRING_TYPES = ('text','timestamp with time zone')
 ITYPES = ('integer',)
+DATE_TYPES = ('timestamp with time zone',)
 
 
 def _translate(value, dtype)->str:
     """Convert value into format suitable for postgresl"""
     provenance_track_logger.debug(f"{value} {dtype}")
+    if isinstance(value,datetime.datetime):
+        if value.tzinfo is None:
+            v =  value.strftime("'%Y-%m-%d %H:%M:%S.%f'")
+        else:
+            v = value.strftime("'%Y-%m-%d %H:%M:%S.%f%z'")
+        return v
+
     if dtype in STRING_TYPES:
         return "'" + value.replace("'", "''") + "'"
     if dtype in ITYPES:
         return str(value)
+    if dtype in DATE_TYPES:
+        pass
+
     raise ProvenanceException(f"Unsupported type {dtype} for value {value}")
 
 
@@ -82,3 +94,4 @@ def set_log_level(level: str) -> bool:
     except Exception:
         provenance_track_logger.exception(f"set level {level}")
         return False
+
