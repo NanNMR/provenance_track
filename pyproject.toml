@@ -10,11 +10,6 @@ authors = [
 ]
 dynamic = ["license"]
 
-[project.optional-dependencies]
-mock = ['keyrings.efile',
-    'postgresql-access',
-    'pyyaml']
-
 #[project.scripts]
 #provenance_track = "provenance_track.main:main"
 [build-system]
