@@ -34,7 +34,7 @@ AND    i.indisprimary"""
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
 STRING_TYPES = ('text','timestamp with time zone')
-ITYPES = ('integer',)
+ITYPES = ('integer','boolean')
 DATE_TYPES = ('timestamp with time zone',)
 
 
