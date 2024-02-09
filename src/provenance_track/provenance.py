@@ -1,6 +1,6 @@
 import datetime
 
-from provenance_track import PlpyAPI, provenance_track_logger
+from provenance_track import PlpyAPI, provenance_track_logger, TRACE
 
 
 class ProvenanceException(Exception):
@@ -35,6 +35,7 @@ EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
 STRING_TYPES = ('text',)
 INTEGER_TYPES = ('integer','boolean')
+STRING_TYPES = ('text','timestamp with time zone')
 AS_TYPES = ()
 
 #DATE_TYPES = ('timestamp with time zone',)
@@ -44,20 +45,25 @@ def _translate(value, dtype)->str:
     """Convert value into format suitable for postgresl"""
     provenance_track_logger.debug(f"{value} {dtype}")
     if value is None:
+        provenance_track_logger.log(TRACE,f"null {dtype}")
         return 'NULL'
     if isinstance(value,datetime.datetime):
         if value.tzinfo is None:
             v =  value.strftime("'%Y-%m-%d %H:%M:%S.%f'")
         else:
             v = value.strftime("'%Y-%m-%d %H:%M:%S.%f%z'")
+        provenance_track_logger.log(TRACE,f"{dtype} {value} to {v}")
         return v
     if dtype in STRING_TYPES:
-        return "'" + value.replace("'", "''") + "'"
+        v = "'" + value.replace("'", "''") + "'"
+        provenance_track_logger.log(TRACE, f"{dtype} {value} to {v}")
+        return v
     if dtype in INTEGER_TYPES:
+        provenance_track_logger.log(TRACE, f"{dtype} {value} as str")
         return str(value)
     if dtype in AS_TYPES:
+        provenance_track_logger.log(TRACE, f"{dtype} {value} as is")
         return value
-
     raise ProvenanceException(f"Unsupported type {dtype} for value {value}")
 
 

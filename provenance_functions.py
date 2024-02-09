@@ -21,11 +21,12 @@ raise ValueError(f"truncate of provenance tracked table {TD['table_schema']}.{TD
 $$;
 
 
-CREATE or REPLACE PROCEDURE public.set_provenance_loglevel(level text)
+CREATE or REPLACE FUNCTION public.set_provenance_loglevel(level text)
+  RETURNS BOOLEAN
 LANGUAGE plpython3u 
 AS $$ 
 import provenance_track 
-provenance_track.logsetup.set_loglevel(level)
+return provenance_track.logsetup.set_loglevel(level)
 $$;
 
 

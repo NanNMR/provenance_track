@@ -19,7 +19,7 @@ def test_one(plpy):
 
 def test_two(plpy):
     bvalue = False
-    return plpy.make_trigger_data('public', 'sample', 'INSERT', None,
+    return plpy.make_trigger_data('public', 'psample', 'INSERT', None,
                               {'id': 1, 'count': 5, 'description':'adding','created': datetime.datetime.now(tz=tz),
                                'good': bvalue})
 def main():

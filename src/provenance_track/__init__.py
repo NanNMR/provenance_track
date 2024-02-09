@@ -2,6 +2,9 @@
 import importlib.metadata 
 import logging
 
+TRACE= 5
+"""Trace logging level"""
+
 
 provenance_track_logger = logging.getLogger(__name__)
 from provenance_track.plpyapi import PyResult,PlpyAPI

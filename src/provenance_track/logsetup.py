@@ -3,7 +3,8 @@ import logging.handlers
 import os
 from pathlib import Path
 
-from provenance_track import provenance_track_logger
+from provenance_track import provenance_track_logger, TRACE
+
 _LOG_FILE = '/var/log/nan.d/provenance'
 
 class ReadableFileHandler(logging.handlers.TimedRotatingFileHandler):
@@ -28,7 +29,12 @@ def setup_logging():
 def set_loglevel(level: str) -> bool:
     """Set level name"""
     try:
-        provenance_track_logger.setLevel(getattr(logging, level))
+        if hasattr(logging,level):
+            provenance_track_logger.setLevel(getattr(logging, level))
+        elif level == 'TRACE':
+            provenance_track_logger.setLevel(TRACE)
+        else:
+            provenance_track_logger.setLevel(int(level))
         return True
     except Exception:
         provenance_track_logger.exception(f"set level {level}")
