@@ -5,7 +5,6 @@ import logging
 import os
 import zoneinfo
 
-import provenance_track.logsetup
 
 tz = zoneinfo.ZoneInfo('America/New_York')
 os.environ['NO_PROVENANCE_TRACK_LOG'] = "1"
@@ -19,8 +18,10 @@ def test_one(plpy):
 
 
 def test_two(plpy):
+    bvalue = False
     return plpy.make_trigger_data('public', 'sample', 'INSERT', None,
-                              {'id': 1, 'count': 5, 'description':'adding','created': datetime.datetime.now(tz=tz)})
+                              {'id': 1, 'count': 5, 'description':'adding','created': datetime.datetime.now(tz=tz),
+                               'good': bvalue})
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-l', '--loglevel', default='INFO', help="Python logging level")

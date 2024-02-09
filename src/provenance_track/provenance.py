@@ -33,27 +33,30 @@ AND    i.indisprimary"""
 #
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
-STRING_TYPES = ('text','timestamp with time zone')
-ITYPES = ('integer','boolean')
-DATE_TYPES = ('timestamp with time zone',)
+STRING_TYPES = ('text',)
+INTEGER_TYPES = ('integer','boolean')
+AS_TYPES = ()
+
+#DATE_TYPES = ('timestamp with time zone',)
 
 
 def _translate(value, dtype)->str:
     """Convert value into format suitable for postgresl"""
     provenance_track_logger.debug(f"{value} {dtype}")
+    if value is None:
+        return 'NULL'
     if isinstance(value,datetime.datetime):
         if value.tzinfo is None:
             v =  value.strftime("'%Y-%m-%d %H:%M:%S.%f'")
         else:
             v = value.strftime("'%Y-%m-%d %H:%M:%S.%f%z'")
         return v
-
     if dtype in STRING_TYPES:
         return "'" + value.replace("'", "''") + "'"
-    if dtype in ITYPES:
+    if dtype in INTEGER_TYPES:
         return str(value)
-    if dtype in DATE_TYPES:
-        pass
+    if dtype in AS_TYPES:
+        return value
 
     raise ProvenanceException(f"Unsupported type {dtype} for value {value}")
 
