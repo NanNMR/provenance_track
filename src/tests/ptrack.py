@@ -21,7 +21,7 @@ def test_two(plpy):
     bvalue = False
     return plpy.make_trigger_data('public', 'psample', 'INSERT', None,
                               {'id': 1, 'count': 5, 'description':'adding','created': datetime.datetime.now(tz=tz),
-                               'good': bvalue})
+                               'good': bvalue,'stuff':['a','b']})
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-l', '--loglevel', default='INFO', help="Python logging level")

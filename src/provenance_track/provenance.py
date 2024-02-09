@@ -36,6 +36,7 @@ EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 STRING_TYPES = ('text',)
 INTEGER_TYPES = ('integer','boolean')
 STRING_TYPES = ('text','timestamp with time zone')
+ARRAY_TYPES = ('ARRAY')
 AS_TYPES = ()
 
 #DATE_TYPES = ('timestamp with time zone',)
@@ -64,6 +65,11 @@ def _translate(value, dtype)->str:
     if dtype in AS_TYPES:
         provenance_track_logger.log(TRACE, f"{dtype} {value} as is")
         return value
+    if dtype in ARRAY_TYPES:
+        qstrings = [f'"{v}"' for v in value]
+        v =  f"'{{{','.join(qstrings)}}}'"
+        provenance_track_logger.log(TRACE, f"{dtype} array {value} as {v}")
+        return v
     raise ProvenanceException(f"Unsupported type {dtype} for value {value}")
 
 
