@@ -19,11 +19,13 @@ class ReadableFileHandler(logging.handlers.TimedRotatingFileHandler):
 
 
 def setup_logging():
-    if not os.getenv('NO_PROVENANCE_TRACK_LOG',False):
-        Path('/var/log/nan.d').mkdir(parents=True, exist_ok=True)
+    Path('/var/log/nan.d').mkdir(parents=True, exist_ok=True)
+    try:
         handler = ReadableFileHandler(_LOG_FILE, when='h', interval=1, utc=True)
         handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         provenance_track_logger.addHandler(handler)
+    except PermissionError as pe:
+        provenance_track_logger.warning(f"provenance_track unlogged {pe}")
 
 
 def set_loglevel(level: str) -> bool:
