@@ -4,6 +4,9 @@ import datetime
 import logging
 import os
 import zoneinfo
+
+import provenance_track.logsetup
+
 tz = zoneinfo.ZoneInfo('America/New_York')
 os.environ['NO_PROVENANCE_TRACK_LOG'] = "1"
 import provenance_track
@@ -29,7 +32,7 @@ def main():
         from provenance_track import provenance_track_logger, record
         provenance_track_logger.addHandler(logging.StreamHandler())
         import provenance_track
-        provenance_track.set_log_level(args.loglevel)
+        provenance_track.logsetup.set_loglevel(args.loglevel)
 
         #record(plpy,test_one(plpy))
         record(plpy,test_two(plpy))

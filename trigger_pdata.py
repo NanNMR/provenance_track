@@ -1,3 +1,5 @@
+import provenance_track.logsetup
+
 CREATE LANGUAGE plpython3u;
 
 CREATE or REPLACE FUNCTION public.record_ch() 
@@ -10,7 +12,7 @@ import provenance_track
 from provenance_track import provenance_track_logger, record
 plpy.warning('trigger fire')
 plpy.info(provenance_track.__version__)
-provenance_track.set_log_level('DEBUG')
+provenance_track.logsetup.set_loglevel('DEBUG')
 record(plpy,TD)
 
 #plpy.info(provenance_track.nan_user())

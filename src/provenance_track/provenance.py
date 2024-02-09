@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 from provenance_track import PlpyAPI, provenance_track_logger
 
@@ -86,12 +85,4 @@ def record(plpy: PlpyAPI, TD):
     # EVENT
     provenance_track_logger.debug(f'{fqtn} in provenance')
 
-
-def set_log_level(level: str) -> bool:
-    try:
-        provenance_track_logger.setLevel(getattr(logging, level))
-        return True
-    except Exception:
-        provenance_track_logger.exception(f"set level {level}")
-        return False
 
