@@ -16,12 +16,19 @@ from src.mock.plpyfacade import MockPlpy
 def test_one(plpy):
     return plpy.make_trigger_data('public', 'pdata', 'DELETE', {'id': 1, 'name': 'bob'}, {'name': 'Mary'})
 
-
 def test_two(plpy):
     bvalue = False
     return plpy.make_trigger_data('public', 'psample', 'INSERT', None,
-                              {'id': 1, 'count': 5, 'description':'adding','created': datetime.datetime.now(tz=tz),
-                               'good': bvalue,'stuff':['a','b']})
+                              {'id': 1,
+                               'count': 5,
+                               'description':'adding',
+                               'created': datetime.datetime.now(tz=tz),
+                               'good': bvalue,
+                               'stuff':['a','b'],
+                               'hydration_unit':'mg',
+                               'pdate': datetime.date(year=2024,month=2,day=3),
+                               }
+                                  )
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-l', '--loglevel', default='INFO', help="Python logging level")

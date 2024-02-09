@@ -1,4 +1,6 @@
-CREATE LANGUAGE plpython3u;
+SET client_min_messages TO WARNING;
+CREATE SCHEMA if not exists provenance;
+CREATE or REPLACE LANGUAGE plpython3u;
 
 CREATE or REPLACE FUNCTION public.record_provenance()
   RETURNS TRIGGER

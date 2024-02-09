@@ -33,16 +33,16 @@ AND    i.indisprimary"""
 #
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
-STRING_TYPES = ('text',)
-INTEGER_TYPES = ('integer','boolean')
-STRING_TYPES = ('text','timestamp with time zone')
+NUMERIC_TYPES = ('integer','boolean','real')
+STRING_TYPES = ('text','timestamp with time zone','USER-DEFINED')
+QSTRING_TYPES = ('date')
 ARRAY_TYPES = ('ARRAY')
 AS_TYPES = ()
 
 #DATE_TYPES = ('timestamp with time zone',)
 
-
-def _translate(value, dtype)->str:
+translate_errors = []
+def _translate(name,value, dtype)->str | None:
     """Convert value into format suitable for postgresl"""
     provenance_track_logger.debug(f"{value} {dtype}")
     if value is None:
@@ -59,9 +59,13 @@ def _translate(value, dtype)->str:
         v = "'" + value.replace("'", "''") + "'"
         provenance_track_logger.log(TRACE, f"{dtype} {value} to {v}")
         return v
-    if dtype in INTEGER_TYPES:
+    if dtype in NUMERIC_TYPES:
         provenance_track_logger.log(TRACE, f"{dtype} {value} as str")
         return str(value)
+    if dtype in QSTRING_TYPES:
+        v = "'" + str(value).replace("'", "''") + "'"
+        provenance_track_logger.log(TRACE, f"{dtype} {value} to {v}")
+        return v
     if dtype in AS_TYPES:
         provenance_track_logger.log(TRACE, f"{dtype} {value} as is")
         return value
@@ -70,7 +74,8 @@ def _translate(value, dtype)->str:
         v =  f"'{{{','.join(qstrings)}}}'"
         provenance_track_logger.log(TRACE, f"{dtype} array {value} as {v}")
         return v
-    raise ProvenanceException(f"Unsupported type {dtype} for value {value}")
+    translate_errors.append(f"Unsupported type {name} {dtype} for value {value}")
+    return None
 
 
 def record(plpy: PlpyAPI, TD):
@@ -90,12 +95,16 @@ def record(plpy: PlpyAPI, TD):
     event_type = EVENT_MAP[event]
     source = 'new' if event_type < 2 else 'old'
     colspec = ','.join((c[0] for c in cols))
-    values = [nan_user(plpy), str(event_type)] + [_translate(TD[source][c[0]], c[1]) for c in cols]
-    query = f"""insert into provenance.{fqtn} (provenance_user,provenance_event,{colspec})
-            values ({','.join(values)})"""
-    r = plpy.execute(query)
-    if r.nrows() != 1:
-        raise ProvenanceException(f"{event} updated {r.nrows()}")
+    translate_errors.clear()
+    values = [nan_user(plpy), str(event_type)] + [_translate(c[0],TD[source][c[0]], c[1]) for c in cols]
+    if not translate_errors:
+        query = f"""insert into provenance.{fqtn} (provenance_user,provenance_event,{colspec})
+                values ({','.join(values)})"""
+        r = plpy.execute(query)
+        if r.nrows() != 1:
+            raise ProvenanceException(f"{event} updated {r.nrows()}")
+    else:
+        raise ProvenanceException(','.join(translate_errors))
 
     # EVENT
     provenance_track_logger.debug(f'{fqtn} in provenance')
