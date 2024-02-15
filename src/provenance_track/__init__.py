@@ -1,6 +1,7 @@
 
 import importlib.metadata 
 import logging
+import sys
 
 TRACE= 5
 """Trace logging level"""
@@ -13,5 +14,5 @@ from provenance_track.provenance import nan_user, record
 
 __version__ =  importlib.metadata.version('provenance_track') 
 setup_logging()
-provenance_track_logger.warning('loading')
+provenance_track_logger.warning(f'loading {sys.version_info}')
 

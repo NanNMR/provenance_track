@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from provenance_track import PlpyAPI, provenance_track_logger, TRACE
 
@@ -33,7 +34,7 @@ AND    i.indisprimary"""
 #
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
-NUMERIC_TYPES = ('integer','boolean','real')
+NUMERIC_TYPES = ('integer','boolean','real','numeric')
 STRING_TYPES = ('text','timestamp with time zone','USER-DEFINED')
 QSTRING_TYPES = ('date')
 ARRAY_TYPES = ('ARRAY')
@@ -42,7 +43,7 @@ AS_TYPES = ()
 #DATE_TYPES = ('timestamp with time zone',)
 
 translate_errors = []
-def _translate(name,value, dtype)->str | None:
+def _translate(name,value, dtype)->Optional[None]:
     """Convert value into format suitable for postgresl"""
     provenance_track_logger.debug(f"{value} {dtype}")
     if value is None:
