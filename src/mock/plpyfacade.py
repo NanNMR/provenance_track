@@ -5,7 +5,11 @@ from collections.abc import Mapping
 from typing import Optional, Dict
 
 import yaml
-from postgresql_access import DatabaseDict
+try:
+    from postgresql_access import DatabaseDict
+except:
+    print("Install test environment via pip install .[mock]",file=sys.stderr)
+    sys.exit(1)
 
 
 def create_global_symbol(name,value):

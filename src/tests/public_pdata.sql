@@ -6,6 +6,7 @@ create table provenance.public_pdata (
 ); 
 ALTER TABLE provenance.public_pdata add column id integer not null; 
 ALTER TABLE provenance.public_pdata add column name text;
+ALTER TABLE provenance.public_pdata add column state user_modifiable_text; 
 ALTER TABLE provenance.public_pdata add column provenance_timestamp timestamptz not null default now();
 ALTER TABLE provenance.public_pdata add column provenance_user text not null;
 ALTER TABLE provenance.public_pdata add column provenance_event integer not null references provenance.sys_event_type;

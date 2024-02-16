@@ -14,7 +14,9 @@ from src.mock.plpyfacade import MockPlpy
 
 
 def test_one(plpy):
-    return plpy.make_trigger_data('public', 'pdata', 'DELETE', {'id': 1, 'name': 'bob'}, {'name': 'Mary'})
+    return plpy.make_trigger_data('public', 'pdata', 'INSERT',
+                          {'id': 2, 'name': 'bob',
+                           'state': {'orig':None, 'usr':None, 'is_user':False}}, {'name': 'Mary'})
 
 def test_two(plpy):
     bvalue = False
@@ -42,8 +44,8 @@ def main():
         import provenance_track
         provenance_track.logsetup.set_loglevel(args.loglevel)
 
-        #record(plpy,test_one(plpy))
-        record(plpy,test_two(plpy))
+        record(plpy,test_one(plpy))
+        #record(plpy,test_two(plpy))
 
 
 
