@@ -39,3 +39,11 @@ AS $$
 import provenance_track 
 return provenance_track.logsetup.get_loginfo()
 $$;
+
+CREATE or REPLACE PROCEDURE public.disable_provenance()
+LANGUAGE plpython3u 
+AS $$ 
+import provenance_track 
+import plpy
+provenance_track.disable_provenance(plpy)
+$$;
