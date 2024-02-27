@@ -15,7 +15,7 @@ provenance_track_logger = logging.getLogger(__name__)
 
 from provenance_track.plpyapi import PyResult,PlpyAPI
 from provenance_track.logsetup import setup_logging, set_loglevel,get_loginfo
-from provenance_track.provenance import nan_user, record, disable_provenance
+from provenance_track.provenance import nan_user, record, disable_provenance, supported_types
 setup_logging()
 provenance_track_logger.warning(f'loading {sys.version_info}')
 

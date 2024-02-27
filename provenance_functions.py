@@ -39,6 +39,14 @@ AS $$
 import provenance_track 
 return provenance_track.logsetup.get_loginfo()
 $$;
+CREATE or REPLACE FUNCTION public.get_provenance_types()
+  RETURNS SETOF TEXT
+LANGUAGE plpython3u 
+AS $$ 
+import provenance_track 
+return provenance_track.supported_types()
+$$;
+
 
 CREATE or REPLACE PROCEDURE public.disable_provenance()
 LANGUAGE plpython3u 

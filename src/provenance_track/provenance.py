@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import Iterable
 
 from provenance_track import PlpyAPI, provenance_track_logger, TRACE, DISABLE_SENTINEL
 
@@ -34,11 +35,13 @@ AND    i.indisprimary"""
 #
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
-NUMERIC_TYPES = ('integer', 'boolean', 'real', 'numeric')
-STRING_TYPES = ('text', 'timestamp with time zone','uuid')
-QSTRING_TYPES = ('date')
-ARRAY_TYPES = ('ARRAY')
+NUMERIC_TYPES = ('integer', 'smallint', 'boolean', 'real', 'numeric')
+STRING_TYPES = ('character varying', 'text', 'timestamp with time zone', 'uuid', 'jsonb')
+QSTRING_TYPE = 'date'  # Python type requires conversion to string
+ARRAY_TYPE = 'ARRAY'
+USER_DEFINED = 'USER-DEFINED'
 AS_TYPES = ()
+SUPPORTED_TYPES = NUMERIC_TYPES + STRING_TYPES + (QSTRING_TYPE, ARRAY_TYPE, USER_DEFINED)
 
 # DATE_TYPES = ('timestamp with time zone',)
 
@@ -67,19 +70,19 @@ def _translate(name, value, dtype) -> str | None:
     if dtype in NUMERIC_TYPES:
         provenance_track_logger.log(TRACE, f"{dtype} {value} as str")
         return str(value)
-    if dtype in QSTRING_TYPES:
+    if dtype == QSTRING_TYPE:
         v = "'" + str(value).replace("'", "''") + "'"
         provenance_track_logger.log(TRACE, f"{dtype} {value} to {v}")
         return v
-    if dtype in AS_TYPES:
-        provenance_track_logger.log(TRACE, f"{dtype} {value} as is")
-        return value
-    if dtype in ARRAY_TYPES:
+    #    if dtype in AS_TYPES:
+    #        provenance_track_logger.log(TRACE, f"{dtype} {value} as is")
+    #        return value
+    if dtype == ARRAY_TYPE:
         qstrings = [f'"{v}"' for v in value]
         v = f"'{{{','.join(qstrings)}}}'"
         provenance_track_logger.log(TRACE, f"{dtype} array {value} as {v}")
         return v
-    if dtype == 'USER-DEFINED':
+    if dtype == USER_DEFINED:
         if isinstance(value, str):
             v = "'" + value.replace("'", "''") + "'"
             provenance_track_logger.log(TRACE, f"{dtype} {value} to {v}")
@@ -103,9 +106,11 @@ def _translate(name, value, dtype) -> str | None:
     translate_errors.append(f"Unsupported type {name} {dtype} for value {value}")
     return None
 
-def disable_provenance(plpy:PlpyAPI):
+
+def disable_provenance(plpy: PlpyAPI):
     provenance_track_logger.warning(f"Provenance disabled {nan_user(plpy)}")
     DISABLE_SENTINEL.touch(exist_ok=True)
+
 
 def record(plpy: PlpyAPI, TD):
     if DISABLE_SENTINEL.exists():
@@ -142,3 +147,8 @@ def record(plpy: PlpyAPI, TD):
 
     # EVENT
     provenance_track_logger.debug(f'{fqtn} in provenance')
+
+
+def supported_types() -> Iterable[str]:
+    """Types currently supported"""
+    return SUPPORTED_TYPES

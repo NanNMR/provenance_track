@@ -35,11 +35,14 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-l', '--loglevel', default='INFO', help="Python logging level")
     parser.add_argument('yaml',nargs='?', default='ftest.yaml',help="YAML")
+    parser.add_argument('--supported',action='store_true',help="List supported types")
 
     args = parser.parse_args()
 #    provenance_track_logger.setLevel(getattr(logging,args.loglevel))
     with MockPlpy.from_yaml_file(args.yaml) as plpy:
-        from provenance_track import provenance_track_logger, record
+        from provenance_track import provenance_track_logger, record, supported_types
+        if args.supported:
+            print(supported_types())
         provenance_track_logger.addHandler(logging.StreamHandler())
         import provenance_track
         provenance_track.logsetup.set_loglevel(args.loglevel)
