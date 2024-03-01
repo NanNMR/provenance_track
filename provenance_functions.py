@@ -48,10 +48,10 @@ return provenance_track.supported_types()
 $$;
 
 
-CREATE or REPLACE PROCEDURE public.disable_provenance()
-LANGUAGE plpython3u 
-AS $$ 
-import provenance_track 
-import plpy
-provenance_track.disable_provenance(plpy)
-$$;
+-- CREATE or REPLACE PROCEDURE public.disable_provenance()
+-- LANGUAGE plpython3u 
+-- AS $$ 
+-- import provenance_track 
+-- import plpy
+-- provenance_track.disable_provenance(plpy)
+-- $$;

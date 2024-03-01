@@ -2,7 +2,7 @@ import datetime
 import logging
 from typing import Iterable
 
-from provenance_track import PlpyAPI, provenance_track_logger, TRACE, DISABLE_SENTINEL
+from provenance_track import PlpyAPI, provenance_track_logger, TRACE
 
 
 class ProvenanceException(Exception):
@@ -107,18 +107,21 @@ def _translate(name, value, dtype) -> str | None:
     return None
 
 
-def disable_provenance(plpy: PlpyAPI):
-    provenance_track_logger.warning(f"Provenance disabled {nan_user(plpy)}")
-    DISABLE_SENTINEL.touch(exist_ok=True)
+#def disable_provenance(plpy: PlpyAPI):
+#    provenance_track_logger.warning(f"Provenance disabled {nan_user(plpy)}")
+#    DISABLE_SENTINEL.touch(exist_ok=True)
 
 
-def record(plpy: PlpyAPI, TD):
-    if DISABLE_SENTINEL.exists():
-        provenance_track_logger.warning(f"Disabled {TD}")
-        return
-
-    provenance_track_logger.info(TD)
+def record(plpy: PlpyAPI, TD)->None:
+#    if DISABLE_SENTINEL.exists():
+#        provenance_track_logger.warning(f"Disabled {TD}")
+#        return
+    trigger_depth =  plpy.execute('select pg_trigger_depth()')[0]['pg_trigger_depth']
     fqtn = f"{TD['table_schema']}_{TD['table_name']}"
+    if trigger_depth > 1:
+        provenance_track_logger.info(f"Exiting {fqtn} trigger depth {trigger_depth}")
+        return
+    provenance_track_logger.info(TD)
     dotted = f"{TD['table_schema']}.{TD['table_name']}"
     provenance_track_logger.info(fqtn)
     r = plpy.execute(f"""select column_name,data_type 
