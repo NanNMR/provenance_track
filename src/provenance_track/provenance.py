@@ -35,7 +35,7 @@ AND    i.indisprimary"""
 #
 EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
 
-NUMERIC_TYPES = ('integer', 'smallint', 'boolean', 'real', 'numeric')
+NUMERIC_TYPES = ('integer', 'smallint', 'boolean', 'real', 'numeric','double precision')
 STRING_TYPES = ('character varying', 'text', 'timestamp with time zone', 'uuid', 'jsonb','tstzrange')
 QSTRING_TYPE = 'date'  # Python type requires conversion to string
 ARRAY_TYPE = 'ARRAY'
@@ -146,7 +146,7 @@ def record(plpy: PlpyAPI, TD)->None:
         if r.nrows() != 1:
             raise ProvenanceException(f"{event} updated {r.nrows()}")
     else:
-        raise ProvenanceException(','.join(translate_errors))
+        raise ProvenanceException(f"{fqtn} {','.join(translate_errors)}")
 
     # EVENT
     provenance_track_logger.debug(f'{fqtn} in provenance')
