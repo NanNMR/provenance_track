@@ -2,5 +2,5 @@
 database:
   host: localhost 
   user: gweatherby
-  database: bw1
+  database: dba1
 ...

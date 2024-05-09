@@ -33,7 +33,8 @@ AND    i.indisprimary"""
 #
 # build SQL insert with multiple columns
 #
-EVENT_MAP = {"INSERT": 0, "UPDATE": 1, "DELETE": 2, "TRUNCATE": 2}
+UPDATE = 1
+EVENT_MAP = {"INSERT": 0, "UPDATE": UPDATE, "DELETE": 2, "TRUNCATE": 2}
 
 NUMERIC_TYPES = ('integer', 'smallint', 'boolean', 'real', 'numeric','double precision')
 STRING_TYPES = ('character varying', 'text', 'timestamp with time zone', 'uuid', 'jsonb','tstzrange')
@@ -136,6 +137,14 @@ def record(plpy: PlpyAPI, TD)->None:
     event_type = EVENT_MAP[event]
     source = 'new' if event_type < 2 else 'old'
     colspec = ','.join((c[0] for c in cols))
+    if event_type == UPDATE:
+        old_v = TD['old']
+        new_v= TD['new']
+        changed = any(old_v[c[0]] != new_v[c[0]] for c in cols)
+        if not changed:
+            provenance_track_logger.debug(f"No change {dotted}")
+            return
+
     translate_errors.clear()
     values = [nan_user(plpy), str(event_type)] + [_translate(c[0], TD[source][c[0]], c[1]) for c in cols]
     if not translate_errors:

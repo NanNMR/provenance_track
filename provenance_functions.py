@@ -10,7 +10,6 @@ import datetime
 import plpy
 import provenance_track 
 from provenance_track import provenance_track_logger, record
-plpy.info(provenance_track.__version__)
 record(plpy,TD)
 return "OK"
 $$;
